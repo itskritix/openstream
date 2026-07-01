@@ -23,21 +23,20 @@ gh repo create openstream --private --source=. --push   # or push to a repo you 
 
 ## 3. Variables
 
-Service → **Variables** → add:
+Service → **Variables** → add just these two:
 
 | Key | Value |
 | --- | --- |
 | `ADMIN_USER` | `admin` |
 | `ADMIN_PASS` | *a strong password* |
-| `INGEST_KEY` | *a long random string* |
-| `SESSION_SECRET` | *a long random string* |
-| `ENCRYPTION_KEY` | output of `openssl rand -hex 32` |
-| `MEDIAMTX_API` | `http://127.0.0.1:9997` |
-| `MEDIAMTX_RTMP` | `rtmp://127.0.0.1:1935` |
-| `DB_PATH` | `/data/openstream.sqlite` |
-| `PORT` | `3000` |
 
-`PORT` **must** be `3000` — MediaMTX's auth webhook points at `localhost:3000`.
+That's it. Everything else (ingest key, session secret, encryption key, port,
+MediaMTX wiring) is baked into the image or **auto-generated on first boot** and saved
+to the `/data` volume. The generated ingest key is shown on the dashboard's OBS panel
+(and printed once in the deploy logs).
+
+> If you don't even set `ADMIN_USER`/`ADMIN_PASS`, it defaults to `admin` + a random
+> password printed in the deploy logs on first boot.
 
 ## 4. Volume (so destinations survive redeploys)
 

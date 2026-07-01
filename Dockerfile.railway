@@ -31,6 +31,11 @@ ENV NODE_ENV=production
 ENV WEB_DIR=/app/web
 # App must listen on 3000 — MediaMTX's auth webhook points at localhost:3000.
 ENV PORT=3000
+# All-in-one wiring: app talks to MediaMTX over localhost. Baked in so the user
+# never has to set these. Secrets auto-generate on first boot (see secrets.ts).
+ENV MEDIAMTX_API=http://127.0.0.1:9997
+ENV MEDIAMTX_RTMP=rtmp://127.0.0.1:1935
+ENV DB_PATH=/data/openstream.sqlite
 
 COPY --from=mtx /mediamtx /usr/local/bin/mediamtx
 COPY --from=server-build /app/node_modules ./node_modules

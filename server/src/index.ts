@@ -15,6 +15,18 @@ import { supervisor } from "./relay/supervisor";
 async function main(): Promise<void> {
   await seedAdmin();
 
+  // On first boot (or when a secret was missing), surface what got generated so the
+  // user can log in. These are persisted to the data volume and reused after that.
+  if (config.generatedSecrets.length > 0) {
+    console.log("┌─ OpenStream generated secrets (saved to the data volume) ─");
+    if (config.generatedSecrets.includes("ADMIN_PASS")) {
+      console.log(`│  Admin login:  ${config.adminUser} / ${config.adminPass}`);
+    }
+    console.log(`│  Ingest key:   ${config.ingestKey}`);
+    console.log("│  (also shown on the dashboard's OBS setup panel)");
+    console.log("└──────────────────────────────────────────────────────────");
+  }
+
   const app = Fastify({ logger: true });
   await app.register(cookie, { secret: config.sessionSecret });
 

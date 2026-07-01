@@ -3,6 +3,11 @@
 # If either process dies, exit non-zero so the platform restarts the container.
 set -euo pipefail
 
+# Force the app port to 3000 regardless of any PORT the platform injects —
+# MediaMTX's auth webhook is hardcoded to localhost:3000. Point the public
+# domain at 3000 when generating it.
+export PORT=3000
+
 echo "[start] launching MediaMTX…"
 mediamtx /app/mediamtx.yml &
 MTX_PID=$!
