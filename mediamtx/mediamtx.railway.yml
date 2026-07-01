@@ -1,0 +1,23 @@
+###############################################
+# OpenStream — MediaMTX config for the all-in-one
+# (Railway / single-container) deployment.
+# MediaMTX and the app share localhost here.
+###############################################
+
+logLevel: info
+
+# Control API — localhost only; the app polls it in the same container.
+api: yes
+apiAddress: 127.0.0.1:9997
+
+# Publisher auth delegated to the app over localhost.
+# (No authHTTPExclude needed — the app's webhook allows read/playback itself.)
+authMethod: http
+authHTTPAddress: http://127.0.0.1:3000/internal/mediamtx-auth
+
+# RTMP ingest on all interfaces so Railway's TCP proxy can reach it.
+rtmp: yes
+rtmpAddress: :1935
+
+paths:
+  live:

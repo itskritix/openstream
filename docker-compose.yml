@@ -1,0 +1,32 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    restart: unless-stopped
+    volumes:
+      - ./mediamtx/mediamtx.yml:/mediamtx.yml:ro
+    ports:
+      - "1935:1935"   # RTMP ingest (OBS points here)
+    # API (:9997) intentionally NOT published — internal network only.
+    networks:
+      - openstream
+
+  app:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - mediamtx
+    volumes:
+      - openstream-data:/data
+    ports:
+      - "3000:3000"   # dashboard + API
+    networks:
+      - openstream
+
+networks:
+  openstream:
+
+volumes:
+  openstream-data:

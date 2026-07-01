@@ -1,0 +1,45 @@
+# syntax=docker/dockerfile:1
+# All-in-one image: MediaMTX + OpenStream app in a single container.
+# Ideal for single-service PaaS (Railway, Render) or a minimal VPS.
+# Build context is the repo root.
+
+# --- Build the web dashboard ---
+FROM node:20-bookworm-slim AS web-build
+WORKDIR /web
+COPY web/package.json web/package-lock.json* ./
+RUN npm install
+COPY web/ ./
+RUN npm run build
+
+# --- Build the server ---
+FROM node:20-bookworm-slim AS server-build
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY server/package.json server/package-lock.json* ./
+RUN npm install
+COPY server/ ./
+RUN npm run build
+
+# --- Grab the MediaMTX binary from its official image ---
+FROM bluenviron/mediamtx:latest AS mtx
+
+# --- Runtime ---
+FROM node:20-bookworm-slim AS runtime
+RUN apt-get update && apt-get install -y ffmpeg ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+ENV NODE_ENV=production
+ENV WEB_DIR=/app/web
+# App must listen on 3000 — MediaMTX's auth webhook points at localhost:3000.
+ENV PORT=3000
+
+COPY --from=mtx /mediamtx /usr/local/bin/mediamtx
+COPY --from=server-build /app/node_modules ./node_modules
+COPY --from=server-build /app/dist ./dist
+COPY --from=web-build /web/dist ./web
+COPY mediamtx/mediamtx.railway.yml ./mediamtx.yml
+COPY scripts/start-allinone.sh ./start.sh
+RUN chmod +x ./start.sh
+
+# 3000 = dashboard/API (HTTP), 1935 = RTMP ingest (expose via TCP proxy)
+EXPOSE 3000 1935
+CMD ["./start.sh"]

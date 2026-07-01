@@ -1,0 +1,27 @@
+###############################################
+# OpenStream — MediaMTX ingest config
+###############################################
+
+logLevel: info
+
+# Control API — the OpenStream backend polls this to detect live streams.
+# Kept on the internal docker network only (not published to the host).
+api: yes
+apiAddress: :9997
+
+# Publisher authentication is delegated to the OpenStream backend over HTTP.
+# MediaMTX POSTs each auth attempt; the backend validates the ingest key.
+authMethod: http
+authHTTPAddress: http://app:3000/internal/mediamtx-auth
+# Reading/playback from localhost (our ffmpeg relays) needs no auth.
+authHTTPExclude:
+  - action: read
+  - action: playback
+
+# RTMP ingest.
+rtmp: yes
+rtmpAddress: :1935
+
+# Single ingest path. OBS publishes to rtmp://<host>:1935/live
+paths:
+  live:
