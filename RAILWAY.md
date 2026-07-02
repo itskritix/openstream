@@ -1,5 +1,11 @@
 # Deploying OpenStream to Railway
 
+> ⚠️ **Status: partially verified.** The dashboard + app boot has been confirmed on
+> Railway, but **RTMP ingest through Railway's TCP Proxy has not been end-to-end
+> tested yet** — it should work in principle, but until someone streams through it,
+> treat this path as experimental. A plain VPS (open port 1935 in the firewall) is the
+> verified deployment path.
+
 Railway runs OpenStream as **one all-in-one service** (MediaMTX + app in a single
 container, talking over `localhost`). This sidesteps Railway's IPv6 private-networking
 quirks and needs just one HTTP domain + one TCP proxy.
@@ -76,6 +82,9 @@ seconds.
 
 ## Caveats on Railway
 
+- **TCP Proxy for RTMP is unverified:** the proxy forwards raw TCP so RTMP *should*
+  pass through, but this hasn't been confirmed with a real OBS → Railway → platform
+  stream yet. If it fails for you, use a VPS with port 1935 open instead.
 - **Bandwidth:** multistreaming is egress-heavy (each destination = a full copy out).
   Railway bills egress — watch usage, this is where a cheap VPS is often cheaper.
 - **Single container:** MediaMTX + app share one box here. Fine for personal use; if one
