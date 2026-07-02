@@ -83,6 +83,25 @@ button.small { padding: 5px 10px; font-size: 13px; }
 .login-card { width: 340px; }
 
 .error-text { color: var(--error); font-size: 13px; margin-top: 8px; }
+
+.container.wide { max-width: 1280px; }
+.columns { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 1000px) { .columns { grid-template-columns: 1fr 380px; align-items: start; } }
+.col-side { position: sticky; top: 16px; }
+
+.chat-card { display: flex; flex-direction: column; }
+.chat-scroll {
+  height: 480px; overflow-y: auto; margin-top: 10px;
+  border-top: 1px solid var(--border); padding-top: 8px;
+}
+.chat-msg { padding: 3px 0; font-size: 14px; line-height: 1.45; word-break: break-word; }
+.chat-badge {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+  margin-right: 7px; vertical-align: baseline;
+}
+.chat-author { font-weight: 600; margin-right: 7px; }
+
+.event-scroll { max-height: 220px; overflow-y: auto; }
 .copy-field { display: flex; gap: 8px; align-items: center; }
 .copy-field input { flex: 1; }
 .switch { display: flex; gap: 8px; align-items: center; }

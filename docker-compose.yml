@@ -4,6 +4,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./mediamtx/mediamtx.yml:/mediamtx.yml:ro
+      # shared with the app: MediaMTX writes recordings here, the app serves them
+      - openstream-data:/data
     ports:
       - "1935:1935"   # RTMP ingest (OBS points here)
     # API (:9997) intentionally NOT published — internal network only.

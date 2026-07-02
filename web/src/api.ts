@@ -1,4 +1,4 @@
-import { Destination, Me, Status } from "./types";
+import { AppEvent, ChatSourceInfo, Destination, Me, RecordingState, Status } from "./types";
 
 async function req<T>(url: string, opts: RequestInit = {}): Promise<T> {
   const res = await fetch(url, {
@@ -40,4 +40,22 @@ export const api = {
   toggleDestination: (id: number) =>
     req<Destination>(`/api/destinations/${id}/toggle`, { method: "POST" }),
   deleteDestination: (id: number) => req<void>(`/api/destinations/${id}`, { method: "DELETE" }),
+
+  recording: () => req<RecordingState>("/api/recording"),
+  setRecording: (body: { enabled?: boolean; maxGb?: number }) =>
+    req<RecordingState>("/api/recording", { method: "POST", body: JSON.stringify(body) }),
+  deleteRecording: (file: string) =>
+    req<void>(`/api/recordings/${encodeURIComponent(file)}`, { method: "DELETE" }),
+
+  chatSources: () => req<ChatSourceInfo[]>("/api/chat-sources"),
+  addChatSource: (platform: string, identifier: string) =>
+    req<ChatSourceInfo>("/api/chat-sources", {
+      method: "POST",
+      body: JSON.stringify({ platform, identifier }),
+    }),
+  toggleChatSource: (id: number) =>
+    req<{ id: number; enabled: boolean }>(`/api/chat-sources/${id}/toggle`, { method: "POST" }),
+  deleteChatSource: (id: number) => req<void>(`/api/chat-sources/${id}`, { method: "DELETE" }),
+
+  events: () => req<AppEvent[]>("/api/events"),
 };

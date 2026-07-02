@@ -4,6 +4,9 @@ import { Destination, Me, RelayState, Status } from "../types";
 import { DestinationForm } from "../components/DestinationForm";
 import { StatusBadge } from "../components/StatusBadge";
 import { Settings } from "../components/Settings";
+import { RecordingsPanel } from "../components/RecordingsPanel";
+import { ChatPane } from "../components/ChatPane";
+import { EventLog } from "../components/EventLog";
 
 export function Dashboard({ me, onLogout }: { me: Me; onLogout: () => void }) {
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -66,7 +69,9 @@ export function Dashboard({ me, onLogout }: { me: Me; onLogout: () => void }) {
         </div>
       </header>
 
-      <div className="container">
+      <div className="container wide">
+        <div className="columns">
+          <div className="col-main">
         <Settings me={me} />
 
         <div className="card">
@@ -113,6 +118,14 @@ export function Dashboard({ me, onLogout }: { me: Me; onLogout: () => void }) {
         </div>
 
         <DestinationForm onAdded={loadDestinations} />
+
+        <RecordingsPanel />
+        <EventLog />
+          </div>
+          <div className="col-side">
+            <ChatPane />
+          </div>
+        </div>
       </div>
     </>
   );

@@ -1,22 +1,37 @@
 import { config } from "../config";
 import { isIngestLive } from "./api";
 import { supervisor } from "../relay/supervisor";
+import { applyRecordingConfig, enforceRetention } from "../recording";
+import { logEvent } from "../events";
 
 let timer: NodeJS.Timeout | null = null;
 let ingestLive = false;
+let recordingApplied = false;
 
 async function tick(): Promise<void> {
   try {
     const live = await isIngestLive();
+
+    // First successful contact with MediaMTX: push our recording config into it.
+    // Re-done if MediaMTX restarts (contact was lost and this flag reset).
+    if (!recordingApplied) {
+      await applyRecordingConfig().catch(() => {});
+      recordingApplied = true;
+    }
+
     if (live && !ingestLive) {
       ingestLive = true;
+      logEvent("info", "ingest live");
       supervisor.onSourceUp();
     } else if (!live && ingestLive) {
       ingestLive = false;
+      logEvent("info", "ingest offline");
       supervisor.onSourceDown();
+      enforceRetention();
     }
   } catch {
-    // MediaMTX may be briefly unreachable (startup, restart) — ignore and retry next tick.
+    // MediaMTX unreachable (startup/restart) — retry next tick, re-apply config after.
+    recordingApplied = false;
   }
 }
 

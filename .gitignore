@@ -6,3 +6,5 @@ data/
 *.sqlite
 *.sqlite-journal
 .DS_Store
+auto.crt
+auto.key

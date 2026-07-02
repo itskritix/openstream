@@ -9,8 +9,11 @@ import { sessionRoutes } from "./routes/session";
 import { destinationRoutes } from "./routes/destinations";
 import { statusRoutes } from "./routes/status";
 import { internalRoutes } from "./routes/internal";
+import { recordingRoutes } from "./routes/recordings";
+import { chatRoutes } from "./routes/chat";
 import { startPoller, stopPoller } from "./mediamtx/poller";
 import { supervisor } from "./relay/supervisor";
+import { chatManager } from "./chat/manager";
 
 async function main(): Promise<void> {
   await seedAdmin();
@@ -34,6 +37,8 @@ async function main(): Promise<void> {
   await app.register(destinationRoutes);
   await app.register(statusRoutes);
   await app.register(internalRoutes);
+  await app.register(recordingRoutes);
+  await app.register(chatRoutes);
 
   // Serve the built dashboard (SPA) if present.
   const webDir = process.env.WEB_DIR || path.join(__dirname, "../../web/dist");
@@ -49,10 +54,12 @@ async function main(): Promise<void> {
   }
 
   startPoller();
+  chatManager.sync();
 
   const shutdown = async () => {
     stopPoller();
     supervisor.shutdown();
+    chatManager.shutdown();
     await app.close();
     process.exit(0);
   };

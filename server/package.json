@@ -17,7 +17,8 @@
     "@fastify/static": "^7.0.4",
     "argon2": "^0.41.1",
     "better-sqlite3": "^11.3.0",
-    "fastify": "^4.28.1"
+    "fastify": "^4.28.1",
+    "youtubei.js": "^17.2.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.11",

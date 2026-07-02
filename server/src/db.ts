@@ -48,7 +48,65 @@ db.exec(`
     enabled        INTEGER NOT NULL DEFAULT 1,
     created_at     TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS chat_sources (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    platform   TEXT NOT NULL,
+    identifier TEXT NOT NULL,
+    enabled    INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
+
+export interface ChatSource {
+  id: number;
+  platform: string; // "twitch" | "youtube"
+  identifier: string; // twitch channel name / youtube channel-or-video URL
+  enabled: number;
+  created_at: string;
+}
+
+export function getSetting(key: string, fallback: string): string {
+  const row = db.prepare("SELECT value FROM settings WHERE key = ?").get(key) as
+    | { value: string }
+    | undefined;
+  return row?.value ?? fallback;
+}
+
+export function setSetting(key: string, value: string): void {
+  db.prepare(
+    "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+  ).run(key, value);
+}
+
+export function listChatSources(): ChatSource[] {
+  return db.prepare("SELECT * FROM chat_sources ORDER BY id ASC").all() as ChatSource[];
+}
+
+export function getChatSource(id: number): ChatSource | undefined {
+  return db.prepare("SELECT * FROM chat_sources WHERE id = ?").get(id) as ChatSource | undefined;
+}
+
+export function createChatSource(platform: string, identifier: string): ChatSource {
+  const info = db
+    .prepare("INSERT INTO chat_sources (platform, identifier) VALUES (?, ?)")
+    .run(platform, identifier);
+  return getChatSource(Number(info.lastInsertRowid))!;
+}
+
+export function updateChatSource(id: number, enabled: boolean): ChatSource | undefined {
+  db.prepare("UPDATE chat_sources SET enabled = ? WHERE id = ?").run(enabled ? 1 : 0, id);
+  return getChatSource(id);
+}
+
+export function deleteChatSource(id: number): void {
+  db.prepare("DELETE FROM chat_sources WHERE id = ?").run(id);
+}
 
 // Seed / reconcile the single admin user from env on every boot.
 export async function seedAdmin(): Promise<void> {

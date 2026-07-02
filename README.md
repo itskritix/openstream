@@ -9,6 +9,15 @@ fees.
 - **MediaMTX** ingest + **one ffmpeg process per destination** → independent auto-restart and
   per-platform health.
 - Live **dashboard** to add destinations and watch status, backed by a small Node/TypeScript API.
+- **Unified chat** — Twitch + YouTube chats merged into one pane (read-only, no OAuth).
+- **Local recording** — every stream saved to your own disk with a size-capped retention
+  sweep. No storage fees, no time limits.
+- **Event log** — relay drops, reconnects, and ingest state changes at a glance.
+- 17 platform presets (Twitch, YouTube, Kick, Facebook, Instagram, X, Trovo, DLive…).
+
+> YouTube chat note: YouTube bot-checks anonymous requests from some datacenter IPs.
+> If the chat source stays in "waiting" with a bot-check error, that host's IP is
+> flagged — it typically works from home connections and most VPS providers.
 
 ## Architecture
 

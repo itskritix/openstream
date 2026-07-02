@@ -29,3 +29,40 @@ export interface Me {
   username: string;
   ingestKey: string;
 }
+
+export interface RecordingFile {
+  name: string;
+  sizeBytes: number;
+  modifiedAt: string;
+}
+
+export interface RecordingState {
+  enabled: boolean;
+  maxGb: number;
+  usedBytes: number;
+  files: RecordingFile[];
+}
+
+export interface ChatMessage {
+  platform: "twitch" | "youtube";
+  channel: string;
+  author: string;
+  text: string;
+  color?: string;
+  ts: string;
+}
+
+export interface ChatSourceInfo {
+  id: number;
+  platform: string;
+  identifier: string;
+  enabled: boolean;
+  status: string;
+  lastError: string | null;
+}
+
+export interface AppEvent {
+  ts: string;
+  level: "info" | "warn" | "error";
+  message: string;
+}

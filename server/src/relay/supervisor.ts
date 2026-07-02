@@ -2,6 +2,7 @@ import { spawn, ChildProcess } from "node:child_process";
 import { getAdmin, getDestination, listEnabledDestinations, Destination } from "../db";
 import { decrypt } from "../crypto";
 import { buildFfmpegArgs, buildOutputUrl, parseProgress, ProgressStats } from "./ffmpeg";
+import { logEvent } from "../events";
 
 export type RelayStatus = "starting" | "live" | "reconnecting" | "error" | "stopped";
 
@@ -114,6 +115,7 @@ class Supervisor {
       if (relay.status !== "live") {
         relay.status = "live";
         relay.backoffMs = MIN_BACKOFF;
+        logEvent("info", `relay "${relay.name}" live`);
       }
       parseProgress(buf.toString(), relay.stats);
     });
@@ -134,7 +136,7 @@ class Supervisor {
       if (code !== 0 && !relay.lastError) relay.lastError = `ffmpeg exited (code ${code}, signal ${signal})`;
       const delay = relay.backoffMs;
       relay.backoffMs = Math.min(relay.backoffMs * 2, MAX_BACKOFF);
-      console.warn(`[supervisor] relay "${relay.name}" down, retry in ${delay}ms`);
+      logEvent("warn", `relay "${relay.name}" dropped (${relay.lastError ?? "unknown"}), retry in ${Math.round(delay / 1000)}s`);
       relay.restartTimer = setTimeout(() => {
         relay.restartTimer = null;
         if (!relay.stopping && this.sourceLive) this.spawnProc(relay);
